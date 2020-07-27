@@ -1,0 +1,27 @@
+{
+  "name": "f5sistemas/jarvis-fiscal-api",
+  "type": "library",
+  "description": "Endpoints para API Fiscal - F5 Jarvis",
+  "keywords": ["f5","jarvis","f5software","fiscal"],
+  "homepage": "http://f5sg.com.br",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Daniel Bonatti",
+      "email": "daniel@f5sg.com.br",
+      "role": "CTO"
+    }
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "^6.5",
+    "nesbot/carbon": "^2.36"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.5"
+  },
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  }
+}
