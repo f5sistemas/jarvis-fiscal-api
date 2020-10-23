@@ -53,6 +53,11 @@ class JarvisFiscalAPI {
     const DFE_DOWNLOAD_END_POINT = '/api/dfe/download';
 
     /**
+     * @const string
+     */
+    const COMPANIES_CERTIFIED = '/api/companies/certificado';
+
+    /**
      * @param Carbon|null $begin
      * @param Carbon|null $end
      * @return string
@@ -69,6 +74,31 @@ class JarvisFiscalAPI {
         $response = $client->get(
             self::getHost() . self::DFE_RECEBIDAS_GET_END_POINT, [
                 'query' => $data,
+                'headers' => [
+                    'Accept' => 'application/json'
+                ]
+            ]
+        );
+
+        $response = $response->getBody()->getContents();
+
+        return $response;
+
+    }
+
+    /**
+     * @return string
+     */
+    public function getCertified() {
+
+        $data = [
+            'api_token' => $this->api_token
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post(
+            self::getHost() . self::COMPANIES_CERTIFIED, [
+                'json' => $data,
                 'headers' => [
                     'Accept' => 'application/json'
                 ]

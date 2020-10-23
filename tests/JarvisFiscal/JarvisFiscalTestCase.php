@@ -55,4 +55,14 @@ class JarvisFiscalTestCase extends TestCase {
 
     }
 
+    /**
+     *
+     */
+    public function testCompaniesCertified() {
+
+        $response = json_decode($this->api->getCertified());
+        $this->assertIsString($response->file);
+
+    }
+
 }
