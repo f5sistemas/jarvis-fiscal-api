@@ -2,7 +2,7 @@
 
 namespace F5Software\JarvisFiscal;
 
-use Carbon\Carbon;
+use DateTime;
 
 /**
  * Class RequestAPI
@@ -58,11 +58,11 @@ class JarvisFiscalAPI {
     const COMPANIES_CERTIFIED = '/api/companies/certificado';
 
     /**
-     * @param Carbon|null $begin
-     * @param Carbon|null $end
+     * @param DateTime|null $begin
+     * @param DateTime|null $end
      * @return string
      */
-    public function getRecebidas(Carbon $begin = null, Carbon $end = null) {
+    public function getRecebidas(DateTime $begin = null, DateTime $end = null) {
 
         $data = [
             'dh_sai_ent_begin' => $begin ? $begin->format('Y-m-d') : null,

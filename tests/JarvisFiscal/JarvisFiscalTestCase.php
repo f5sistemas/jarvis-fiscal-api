@@ -35,8 +35,8 @@ class JarvisFiscalTestCase extends TestCase {
      */
     public function testDFeRecebidas() {
 
-        $date_1 = (new \Carbon\Carbon())->addMonth(-1);
-        $date_2 = new \Carbon\Carbon();
+        $date_1 = new DateTime('2020-09-01');
+        $date_2 = new DateTime('2020-09-30');
 
         $response = json_decode($this->api->getRecebidas($date_1, $date_2));
         $this->assertTrue($response->status_code == 200);

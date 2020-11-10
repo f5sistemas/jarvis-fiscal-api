@@ -1,6 +1,5 @@
 <?php
 
-
 namespace F5Software\JarvisFiscal;
 
 /**
