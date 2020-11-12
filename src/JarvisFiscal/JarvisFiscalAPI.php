@@ -58,6 +58,11 @@ class JarvisFiscalAPI {
     const COMPANIES_CERTIFIED = '/api/companies/certificado';
 
     /**
+     * @const string
+     */
+    const COMPANIES_MONTHLY_FILES = '/api/companies/monthly-report';
+
+    /**
      * @param DateTime|null $begin
      * @param DateTime|null $end
      * @return string
@@ -73,6 +78,35 @@ class JarvisFiscalAPI {
         $client = new \GuzzleHttp\Client();
         $response = $client->get(
             self::getHost() . self::DFE_RECEBIDAS_GET_END_POINT, [
+                'query' => $data,
+                'headers' => [
+                    'Accept' => 'application/json'
+                ]
+            ]
+        );
+
+        $response = $response->getBody()->getContents();
+
+        return $response;
+
+    }
+
+    /**
+     * @param DateTime|null $date
+     * @param array $emails
+     * @return string
+     */
+    public function monthlyReport(DateTime $date, array $emails) {
+
+        $data = [
+            'date' => $date->format('Y-m-d'),
+            'emails' => $emails,
+            'api_token' => $this->api_token
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post(
+            self::getHost() . self::COMPANIES_MONTHLY_FILES, [
                 'query' => $data,
                 'headers' => [
                     'Accept' => 'application/json'

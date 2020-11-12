@@ -46,6 +46,22 @@ class JarvisFiscalTestCase extends TestCase {
     /**
      *
      */
+    public function testMonthlyReport() {
+
+        $date_1 = new DateTime('2020-09-01');
+        $emails = [
+            'email1@test.com.br',
+            'email2@test.com.br'
+        ];
+
+        $response = json_decode($this->api->monthlyReport($date_1, $emails));
+        $this->assertTrue($response->status_code == 200);
+
+    }
+
+    /**
+     *
+     */
     public function testDFeDownload() {
 
         $chave = '42200707777293000167550010000080911327789539';
