@@ -65,13 +65,15 @@ class JarvisFiscalAPI {
     /**
      * @param DateTime|null $begin
      * @param DateTime|null $end
+     * @param array $ids
      * @return string
      */
-    public function getRecebidas(DateTime $begin = null, DateTime $end = null) {
+    public function getRecebidas(DateTime $begin = null, DateTime $end = null, array $ids = []) {
 
         $data = [
             'dh_sai_ent_begin' => $begin ? $begin->format('Y-m-d') : null,
             'dh_sai_ent_end' => $end ? $end->format('Y-m-d') : null,
+            'ids' => $ids,
             'api_token' => $this->api_token
         ];
 

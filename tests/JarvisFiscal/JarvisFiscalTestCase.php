@@ -46,6 +46,18 @@ class JarvisFiscalTestCase extends TestCase {
     /**
      *
      */
+    public function testDFeRecebidasByIds() {
+
+        $ids = ['208578', '216907'];
+
+        $response = json_decode($this->api->getRecebidas(null, null, $ids));
+        $this->assertTrue($response->status_code == 200);
+
+    }
+
+    /**
+     *
+     */
     public function testMonthlyReport() {
 
         $date_1 = new DateTime('2020-09-01');
