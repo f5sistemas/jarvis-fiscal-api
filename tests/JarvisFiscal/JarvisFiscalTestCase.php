@@ -74,6 +74,16 @@ class JarvisFiscalTestCase extends TestCase {
     /**
      *
      */
+    public function testLogMonthlyReport() {
+
+        $response = json_decode($this->api->logMonthlyReport());
+        $this->assertTrue($response->status_code == 200);
+
+    }
+
+    /**
+     *
+     */
     public function testDFeDownload() {
 
         $chave = '42200707777293000167550010000080911327789539';

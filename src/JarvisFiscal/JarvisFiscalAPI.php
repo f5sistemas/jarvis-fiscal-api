@@ -63,6 +63,11 @@ class JarvisFiscalAPI {
     const COMPANIES_MONTHLY_FILES = '/api/companies/monthly-report';
 
     /**
+     * @const string
+     */
+    const COMPANIES_LOG_MONTHLY_FILES = '/api/companies/monthly-report-log';
+
+    /**
      * @param DateTime|null $begin
      * @param DateTime|null $end
      * @param array $ids
@@ -147,6 +152,29 @@ class JarvisFiscalAPI {
 
     }
 
+    /**
+     * @return string
+     */
+    public function logMonthlyReport() {
 
+        $data = [
+            'api_token' => $this->api_token
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get(
+            self::getHost() . self::COMPANIES_LOG_MONTHLY_FILES, [
+                'json' => $data,
+                'headers' => [
+                    'Accept' => 'application/json'
+                ]
+            ]
+        );
+
+        $response = $response->getBody()->getContents();
+
+        return $response;
+
+    }
 
 }
