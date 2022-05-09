@@ -96,6 +96,18 @@ class JarvisFiscalTestCase extends TestCase {
     /**
      *
      */
+    public function testManifesto() {
+
+        $chave = '42200707777293000167550010000080911327789539';
+
+        $response = json_decode($this->api->manifesto($chave, '210200', null));
+        $this->assertTrue($response->status_code == 200);
+
+    }
+
+    /**
+     *
+     */
     public function testCompaniesCertified() {
 
         $response = json_decode($this->api->getCertified());

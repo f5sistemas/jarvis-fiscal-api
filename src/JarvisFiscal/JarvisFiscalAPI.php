@@ -24,7 +24,7 @@ class JarvisFiscalAPI {
      * @param string $api_token
      * @param string $ambiente
      */
-    public function __construct($api_token, $ambiente = '1') {
+    public function __construct(string $api_token, string $ambiente = '1') {
 
         $this->api_token = $api_token;
         $this->ambiente = $ambiente;
@@ -51,6 +51,11 @@ class JarvisFiscalAPI {
      * @const string
      */
     const DFE_DOWNLOAD_END_POINT = '/api/dfe/download';
+
+    /**
+     * @const string
+     */
+    const DFE_MANIFESTO = '/api/dfe/manifesto';
 
     /**
      * @const string
@@ -174,6 +179,35 @@ class JarvisFiscalAPI {
         $response = $response->getBody()->getContents();
 
         return $response;
+
+    }
+
+    /**
+     * @param string $chave
+     * @param string $evento
+     * @param string|null $justificativa
+     * @return string
+     */
+    public function manifesto(string $chave, string $evento, string $justificativa = null) {
+
+        $data = [
+            'api_token' => $this->api_token,
+            'chave' => $chave,
+            'evento' => $evento,
+            'justificativa' => $justificativa
+        ];
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post(
+            self::getHost() . self::DFE_MANIFESTO, [
+                'json' => $data,
+                'headers' => [
+                    'Accept' => 'application/json'
+                ]
+            ]
+        );
+
+        return $response->getBody()->getContents();
 
     }
 
