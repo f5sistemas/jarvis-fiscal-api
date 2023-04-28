@@ -38,8 +38,20 @@ class JarvisFiscalTestCase extends TestCase {
         $date_1 = new DateTime('2020-09-01');
         $date_2 = new DateTime('2020-09-30');
 
-        $response = json_decode($this->api->getRecebidas($date_1, $date_2));
-        $this->assertTrue($response->status_code == 200);
+        $response = $this->api->getRecebidas($date_1, $date_2);
+        $this->assertTrue($response[0]->id > 0);
+
+    }
+
+    /**
+     *
+     */
+    public function testResumePeriod() {
+
+        $date_1 = new DateTime('2020-09-01');
+
+        $resume = $this->api->resume($date_1);
+        $this->assertTrue($resume->nfe->count >= 0);
 
     }
 
@@ -50,8 +62,8 @@ class JarvisFiscalTestCase extends TestCase {
 
         $ids = ['208578', '216907'];
 
-        $response = json_decode($this->api->getRecebidas(null, null, $ids));
-        $this->assertTrue($response->status_code == 200);
+        $response = $this->api->getRecebidas(null, null, $ids);
+        $this->assertTrue($response[0]->id == 208578 || $response[0]->id == 216907);
 
     }
 
@@ -110,8 +122,8 @@ class JarvisFiscalTestCase extends TestCase {
      */
     public function testCompaniesCertified() {
 
-        $response = json_decode($this->api->getCertified());
-        $this->assertIsString($response->file);
+        $certified = $this->api->getCertified();
+        $this->assertIsString($certified->file);
 
     }
 

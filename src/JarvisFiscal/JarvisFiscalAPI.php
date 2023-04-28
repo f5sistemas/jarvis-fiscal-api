@@ -4,43 +4,18 @@ namespace F5Software\JarvisFiscal;
 
 use DateTime;
 
+use F5Software\Body\Certified;
+use F5Software\Body\EmitResume;
+use F5Software\Body\NFeResume;
+
+use GuzzleHttp\Client;
+
+use JsonMapper;
+
 /**
  * Class RequestAPI
  */
 class JarvisFiscalAPI {
-
-    /**
-     * @var string
-     */
-    protected $api_token;
-
-    /**
-     * @var string
-     */
-    protected $ambiente;
-
-    /**
-     * RequestAPI constructor.
-     * @param string $api_token
-     * @param string $ambiente
-     */
-    public function __construct(string $api_token, string $ambiente = '1') {
-
-        $this->api_token = $api_token;
-        $this->ambiente = $ambiente;
-
-    }
-
-    /**
-     * @return string
-     */
-    protected function getHost() {
-
-        return $this->ambiente == '1' ?
-            "http://fiscal.f5-jarvis.com.br" :
-            "http://localhost:82";
-
-    }
 
     /**
      * @const string
@@ -73,10 +48,63 @@ class JarvisFiscalAPI {
     const COMPANIES_LOG_MONTHLY_FILES = '/api/companies/monthly-report-log';
 
     /**
+     * @const string
+     */
+    const RESUME_PERIOD = '/api/companies/resume';
+
+    /**
+     * @var string
+     */
+    protected $api_token;
+
+    /**
+     * @var string
+     */
+    protected $ambiente;
+
+    /**
+     * @var JsonMapper
+     */
+    protected $jsonMapper;
+
+    /**
+     * RequestAPI constructor.
+     * @param string $api_token
+     * @param string $ambiente
+     */
+    public function __construct(string $api_token, string $ambiente = '1') {
+
+        $this->api_token = $api_token;
+        $this->ambiente = $ambiente;
+        $this->jsonMapper = new JsonMapper();
+
+        $this->client = new Client([
+            'base_uri' => $this->getHost(),
+            'headers' => [
+                'Accept' => 'application/json',
+                'Authorization' => "Bearer {$api_token}"
+            ]
+        ]);
+
+    }
+
+    /**
+     * @return string
+     */
+    protected function getHost() {
+
+        return $this->ambiente == '1' ?
+            "http://fiscal.f5-jarvis.com.br" :
+            "http://localhost:82";
+
+    }
+
+    /**
      * @param DateTime|null $begin
      * @param DateTime|null $end
      * @param array $ids
-     * @return string
+     * @return NFeResume[]
+     * @throws \Exception
      */
     public function getRecebidas(DateTime $begin = null, DateTime $end = null, array $ids = []) {
 
@@ -84,22 +112,21 @@ class JarvisFiscalAPI {
             'dh_sai_ent_begin' => $begin ? $begin->format('Y-m-d') : null,
             'dh_sai_ent_end' => $end ? $end->format('Y-m-d') : null,
             'ids' => $ids,
-            'api_token' => $this->api_token
         ];
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->get(
-            self::getHost() . self::DFE_RECEBIDAS_GET_END_POINT, [
-                'query' => $data,
-                'headers' => [
-                    'Accept' => 'application/json'
-                ]
-            ]
-        );
+        $response = $this->client->get(self::DFE_RECEBIDAS_GET_END_POINT, [
+           'query' => $data
+        ]);
 
-        $response = $response->getBody()->getContents();
+        $response = json_decode($response->getBody()->getContents())->data;
 
-        return $response;
+        $result = [];
+
+        foreach ($response as $item) {
+            $result[] = $this->jsonMapper->map($item, new NFeResume());
+        }
+
+        return $result;
 
     }
 
@@ -113,47 +140,27 @@ class JarvisFiscalAPI {
         $data = [
             'date' => $date->format('Y-m-d'),
             'emails' => $emails,
-            'api_token' => $this->api_token
         ];
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->post(
-            self::getHost() . self::COMPANIES_MONTHLY_FILES, [
-                'query' => $data,
-                'headers' => [
-                    'Accept' => 'application/json'
-                ]
-            ]
-        );
+        $response = $this->client->post(self::COMPANIES_MONTHLY_FILES, [
+            'json' => $data
+        ]);
 
-        $response = $response->getBody()->getContents();
-
-        return $response;
+        return $response->getBody()->getContents();
 
     }
 
     /**
-     * @return string
+     * @return Certified
+     * @throws \Exception
      */
     public function getCertified() {
 
-        $data = [
-            'api_token' => $this->api_token
-        ];
+        $response = $this->client->post(self::COMPANIES_CERTIFIED);
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->post(
-            self::getHost() . self::COMPANIES_CERTIFIED, [
-                'json' => $data,
-                'headers' => [
-                    'Accept' => 'application/json'
-                ]
-            ]
-        );
+        $data = json_decode($response->getBody()->getContents());
 
-        $response = $response->getBody()->getContents();
-
-        return $response;
+        return $this->jsonMapper->map($data, new Certified());
 
     }
 
@@ -162,23 +169,9 @@ class JarvisFiscalAPI {
      */
     public function logMonthlyReport() {
 
-        $data = [
-            'api_token' => $this->api_token
-        ];
+        $response = $this->client->get(self::COMPANIES_LOG_MONTHLY_FILES);
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->get(
-            self::getHost() . self::COMPANIES_LOG_MONTHLY_FILES, [
-                'json' => $data,
-                'headers' => [
-                    'Accept' => 'application/json'
-                ]
-            ]
-        );
-
-        $response = $response->getBody()->getContents();
-
-        return $response;
+        return $response->getBody()->getContents();
 
     }
 
@@ -191,23 +184,37 @@ class JarvisFiscalAPI {
     public function manifesto(string $chave, string $evento, string $justificativa = null) {
 
         $data = [
-            'api_token' => $this->api_token,
             'chave' => $chave,
             'evento' => $evento,
             'justificativa' => $justificativa
         ];
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->post(
-            self::getHost() . self::DFE_MANIFESTO, [
-                'json' => $data,
-                'headers' => [
-                    'Accept' => 'application/json'
-                ]
-            ]
-        );
+        $response = $this->client->post(self::DFE_MANIFESTO, [
+            'json' => $data
+        ]);
 
         return $response->getBody()->getContents();
+
+    }
+
+    /**
+     * @param DateTime $period
+     * @return EmitResume
+     * @throws \Exception
+     */
+    public function resume(DateTime $period) {
+
+        $data = [
+            'period' => $period->format("Y-m"),
+        ];
+
+        $response = $this->client->get(self::RESUME_PERIOD, [
+            'query' => $data
+        ]);
+
+        $data = json_decode($response->getBody()->getContents())->data;
+
+        return $this->jsonMapper->map($data, new EmitResume());
 
     }
 
