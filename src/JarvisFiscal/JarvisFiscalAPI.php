@@ -76,7 +76,9 @@ class JarvisFiscalAPI {
 
         $this->api_token = $api_token;
         $this->ambiente = $ambiente;
+
         $this->jsonMapper = new JsonMapper();
+        $this->jsonMapper->bStrictNullTypes = false;
 
         $this->client = new Client([
             'base_uri' => $this->getHost(),
